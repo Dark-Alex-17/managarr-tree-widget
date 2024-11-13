@@ -1,6 +1,7 @@
 use std::collections::HashSet;
 
 use ratatui::layout::{Position, Rect};
+use ratatui::text::Text;
 
 use crate::flatten::{flatten, Flattened};
 use crate::tree_item::TreeItem;
@@ -61,10 +62,13 @@ where
 
     /// Get a flat list of all currently viewable (including by scrolling) [`TreeItem`]s with this `TreeState`.
     #[must_use]
-    pub fn flatten<'text>(
+    pub fn flatten<'a, T>(
         &self,
-        items: &'text [TreeItem<'text, Identifier>],
-    ) -> Vec<Flattened<'text, Identifier>> {
+        items: &'a [TreeItem<Identifier, T>],
+    ) -> Vec<Flattened<'a, Identifier, T>>
+    where
+        T: for<'b> Into<Text<'b>> + Clone,
+    {
         flatten(&self.opened, items, &[])
     }
 

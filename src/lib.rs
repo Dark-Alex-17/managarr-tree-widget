@@ -10,6 +10,7 @@ use std::collections::HashSet;
 use ratatui::buffer::Buffer;
 use ratatui::layout::Rect;
 use ratatui::style::Style;
+use ratatui::text::Text;
 use ratatui::widgets::{Block, Scrollbar, ScrollbarState, StatefulWidget, Widget};
 use unicode_width::UnicodeWidthStr;
 
@@ -52,8 +53,11 @@ mod tree_state;
 /// ```
 #[must_use]
 #[derive(Debug, Clone)]
-pub struct Tree<'a, Identifier> {
-    items: &'a [TreeItem<'a, Identifier>],
+pub struct Tree<'a, Identifier, T>
+where
+    T: for<'b> Into<Text<'b>> + Clone,
+{
+    items: &'a [TreeItem<Identifier, T>],
 
     block: Option<Block<'a>>,
     scrollbar: Option<Scrollbar<'a>>,
@@ -73,16 +77,17 @@ pub struct Tree<'a, Identifier> {
     node_no_children_symbol: &'a str,
 }
 
-impl<'a, Identifier> Tree<'a, Identifier>
+impl<'a, Identifier, T> Tree<'a, Identifier, T>
 where
     Identifier: Clone + PartialEq + Eq + core::hash::Hash,
+    T: for<'b> Into<Text<'b>> + Clone,
 {
     /// Create a new `Tree`.
     ///
     /// # Errors
     ///
     /// Errors when there are duplicate identifiers in the children.
-    pub fn new(items: &'a [TreeItem<'a, Identifier>]) -> std::io::Result<Self> {
+    pub fn new(items: &'a [TreeItem<Identifier, T>]) -> std::io::Result<Self> {
         let identifiers = items
             .iter()
             .map(|item| &item.identifier)
@@ -160,12 +165,13 @@ fn tree_new_errors_with_duplicate_identifiers() {
     let item = TreeItem::new_leaf("same", "text");
     let another = item.clone();
     let items = [item, another];
-    let _: Tree<_> = Tree::new(&items).unwrap();
+    let _ = Tree::new(&items).unwrap();
 }
 
-impl<Identifier> StatefulWidget for Tree<'_, Identifier>
+impl<'a, Identifier, T> StatefulWidget for Tree<'a, Identifier, T>
 where
     Identifier: Clone + PartialEq + Eq + core::hash::Hash,
+    T: for<'b> Into<Text<'b>> + Clone,
 {
     type State = TreeState<Identifier>;
 
@@ -272,7 +278,7 @@ where
                 height,
             };
 
-            let text = &item.text;
+            let text = item.content.clone().into();
             let item_style = text.style;
 
             let is_selected = state.selected == *identifier;
@@ -299,7 +305,7 @@ where
                 );
                 let symbol = if item.children.is_empty() {
                     self.node_no_children_symbol
-                } else if state.opened.contains(identifier) {
+                } else if state.opened.contains(identifier.as_slice()) {
                     self.node_open_symbol
                 } else {
                     self.node_closed_symbol
@@ -332,9 +338,10 @@ where
     }
 }
 
-impl<Identifier> Widget for Tree<'_, Identifier>
+impl<'a, Identifier, T> Widget for Tree<'a, Identifier, T>
 where
     Identifier: Clone + Default + Eq + core::hash::Hash,
+    T: for<'b> Into<Text<'b>> + Clone,
 {
     fn render(self, area: Rect, buf: &mut Buffer) {
         let mut state = TreeState::default();

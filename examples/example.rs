@@ -12,7 +12,7 @@ use tui_tree_widget::{Tree, TreeItem, TreeState};
 #[must_use]
 struct App {
     state: TreeState<&'static str>,
-    items: Vec<TreeItem<'static, &'static str>>,
+    items: Vec<TreeItem<&'static str, String>>,
 }
 
 impl App {
@@ -20,68 +20,86 @@ impl App {
         Self {
             state: TreeState::default(),
             items: vec![
-                TreeItem::new_leaf("a", "Alfa"),
+                TreeItem::new_leaf("a", "Alfa".to_owned()),
                 TreeItem::new(
                     "b",
-                    "Bravo",
+                    "Bravo".to_owned(),
                     vec![
-                        TreeItem::new_leaf("c", "Charlie"),
+                        TreeItem::new_leaf("c", "Charlie".to_owned()),
                         TreeItem::new(
                             "d",
-                            "Delta",
+                            "Delta".to_owned(),
                             vec![
-                                TreeItem::new_leaf("e", "Echo"),
-                                TreeItem::new_leaf("f", "Foxtrot"),
+                                TreeItem::new_leaf("e", "Echo".to_owned()),
+                                TreeItem::new_leaf("f", "Foxtrot".to_owned()),
                             ],
                         )
                         .expect("all item identifiers are unique"),
-                        TreeItem::new_leaf("g", "Golf"),
+                        TreeItem::new_leaf("g", "Golf".to_owned()),
                     ],
                 )
                 .expect("all item identifiers are unique"),
-                TreeItem::new_leaf("h", "Hotel"),
+                TreeItem::new_leaf("h", "Hotel".to_owned()),
                 TreeItem::new(
                     "i",
-                    "India",
+                    "India".to_owned(),
                     vec![
-                        TreeItem::new_leaf("j", "Juliett"),
-                        TreeItem::new_leaf("k", "Kilo"),
-                        TreeItem::new_leaf("l", "Lima"),
-                        TreeItem::new_leaf("m", "Mike"),
-                        TreeItem::new_leaf("n", "November"),
+                        TreeItem::new_leaf("j", "Juliett".to_owned()),
+                        TreeItem::new_leaf("k", "Kilo".to_owned()),
+                        TreeItem::new_leaf("l", "Lima".to_owned()),
+                        TreeItem::new_leaf("m", "Mike".to_owned()),
+                        TreeItem::new_leaf("n", "November".to_owned()),
                     ],
                 )
                 .expect("all item identifiers are unique"),
-                TreeItem::new_leaf("o", "Oscar"),
+                TreeItem::new_leaf("o", "Oscar".to_owned()),
                 TreeItem::new(
                     "p",
-                    "Papa",
+                    "Papa".to_owned(),
                     vec![
-                        TreeItem::new_leaf("q", "Quebec"),
-                        TreeItem::new_leaf("r", "Romeo"),
-                        TreeItem::new_leaf("s", "Sierra"),
-                        TreeItem::new_leaf("t", "Tango"),
-                        TreeItem::new_leaf("u", "Uniform"),
+                        TreeItem::new_leaf("q", "Quebec".to_owned()),
+                        TreeItem::new_leaf("r", "Romeo".to_owned()),
+                        TreeItem::new_leaf("s", "Sierra".to_owned()),
+                        TreeItem::new_leaf("t", "Tango".to_owned()),
+                        TreeItem::new_leaf("u", "Uniform".to_owned()),
                         TreeItem::new(
                             "v",
-                            "Victor",
+                            "Victor".to_owned(),
                             vec![
-                                TreeItem::new_leaf("w", "Whiskey"),
-                                TreeItem::new_leaf("x", "Xray"),
-                                TreeItem::new_leaf("y", "Yankee"),
+                                TreeItem::new_leaf("w", "Whiskey".to_owned()),
+                                TreeItem::new_leaf("x", "Xray".to_owned()),
+                                TreeItem::new_leaf("y", "Yankee".to_owned()),
                             ],
                         )
                         .expect("all item identifiers are unique"),
                     ],
                 )
                 .expect("all item identifiers are unique"),
-                TreeItem::new_leaf("z", "Zulu"),
+                TreeItem::new_leaf("z", "Zulu".to_owned()),
             ],
         }
     }
 
     fn draw(&mut self, frame: &mut Frame) {
         let area = frame.area();
+        let selected = self.state.selected();
+        let flatten = self.state.flatten(&self.items);
+        let current_selection = flatten
+            .iter()
+            .find(|i| self.state.selected() == i.identifier);
+        let is_selected = current_selection.is_some()
+            && current_selection.unwrap().item.content().to_string() == *"Echo";
+        let style = if is_selected {
+            Style::new()
+                .fg(Color::Black)
+                .bg(Color::Cyan)
+                .add_modifier(Modifier::BOLD)
+        } else {
+            Style::new()
+                .fg(Color::Black)
+                .bg(Color::LightGreen)
+                .add_modifier(Modifier::BOLD)
+        };
         let widget = Tree::new(&self.items)
             .expect("all item identifiers are unique")
             .block(
@@ -95,12 +113,7 @@ impl App {
                     .track_symbol(None)
                     .end_symbol(None),
             ))
-            .highlight_style(
-                Style::new()
-                    .fg(Color::Black)
-                    .bg(Color::LightGreen)
-                    .add_modifier(Modifier::BOLD),
-            )
+            .highlight_style(style)
             .highlight_symbol(">> ");
         frame.render_stateful_widget(widget, area, &mut self.state);
     }

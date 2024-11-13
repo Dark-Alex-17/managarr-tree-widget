@@ -34,25 +34,26 @@ use ratatui::text::Text;
 /// # Ok::<(), std::io::Error>(())
 /// ```
 #[derive(Debug, Clone)]
-pub struct TreeItem<'text, Identifier> {
+pub struct TreeItem<Identifier, T>
+where
+    T: for<'a> Into<Text<'a>> + Clone,
+{
     pub(super) identifier: Identifier,
-    pub(super) text: Text<'text>,
+    pub(super) content: T,
     pub(super) children: Vec<Self>,
 }
 
-impl<'text, Identifier> TreeItem<'text, Identifier>
+impl<Identifier, T> TreeItem<Identifier, T>
 where
     Identifier: Clone + PartialEq + Eq + core::hash::Hash,
+    T: for<'a> Into<Text<'a>> + Clone,
 {
     /// Create a new `TreeItem` without children.
     #[must_use]
-    pub fn new_leaf<T>(identifier: Identifier, text: T) -> Self
-    where
-        T: Into<Text<'text>>,
-    {
+    pub fn new_leaf(identifier: Identifier, content: T) -> Self {
         Self {
             identifier,
-            text: text.into(),
+            content,
             children: Vec::new(),
         }
     }
@@ -62,10 +63,7 @@ where
     /// # Errors
     ///
     /// Errors when there are duplicate identifiers in the children.
-    pub fn new<T>(identifier: Identifier, text: T, children: Vec<Self>) -> std::io::Result<Self>
-    where
-        T: Into<Text<'text>>,
-    {
+    pub fn new(identifier: Identifier, content: T, children: Vec<Self>) -> std::io::Result<Self> {
         let identifiers = children
             .iter()
             .map(|item| &item.identifier)
@@ -79,7 +77,7 @@ where
 
         Ok(Self {
             identifier,
-            text: text.into(),
+            content,
             children,
         })
     }
@@ -92,8 +90,8 @@ where
 
     /// Get a reference to the text.
     #[must_use]
-    pub const fn text(&self) -> &Text<'text> {
-        &self.text
+    pub const fn content(&self) -> &T {
+        &self.content
     }
 
     #[must_use]
@@ -117,7 +115,7 @@ where
 
     #[must_use]
     pub fn height(&self) -> usize {
-        self.text.height()
+        self.content.clone().into().height()
     }
 
     /// Add a child to the `TreeItem`.
@@ -143,28 +141,31 @@ where
     }
 }
 
-impl TreeItem<'static, &'static str> {
+impl TreeItem<&'static str, String> {
     #[cfg(test)]
     #[must_use]
     pub(crate) fn example() -> Vec<Self> {
         vec![
-            Self::new_leaf("a", "Alfa"),
+            Self::new_leaf("a", "Alfa".to_owned()),
             Self::new(
                 "b",
-                "Bravo",
+                "Bravo".to_owned(),
                 vec![
-                    Self::new_leaf("c", "Charlie"),
+                    Self::new_leaf("c", "Charlie".to_owned()),
                     Self::new(
                         "d",
-                        "Delta",
-                        vec![Self::new_leaf("e", "Echo"), Self::new_leaf("f", "Foxtrot")],
+                        "Delta".to_owned(),
+                        vec![
+                            Self::new_leaf("e", "Echo".to_owned()),
+                            Self::new_leaf("f", "Foxtrot".to_owned()),
+                        ],
                     )
                     .expect("all item identifiers are unique"),
-                    Self::new_leaf("g", "Golf"),
+                    Self::new_leaf("g", "Golf".to_owned()),
                 ],
             )
             .expect("all item identifiers are unique"),
-            Self::new_leaf("h", "Hotel"),
+            Self::new_leaf("h", "Hotel".to_owned()),
         ]
     }
 }
