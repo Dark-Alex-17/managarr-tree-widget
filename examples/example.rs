@@ -12,7 +12,7 @@ use managarr_tree_widget::{Tree, TreeItem, TreeState};
 #[must_use]
 struct App {
     state: TreeState<&'static str>,
-    items: Vec<TreeItem<&'static str, String>>,
+    items: Vec<TreeItem<&'static str, &'static str>>,
 }
 
 impl App {
@@ -20,62 +20,62 @@ impl App {
         Self {
             state: TreeState::default(),
             items: vec![
-                TreeItem::new_leaf("a", "Alfa".to_owned()),
+                TreeItem::new_leaf("a", "Alfa"),
                 TreeItem::new(
                     "b",
-                    "Bravo".to_owned(),
+                    "Bravo",
                     vec![
-                        TreeItem::new_leaf("c", "Charlie".to_owned()),
+                        TreeItem::new_leaf("c", "Charlie"),
                         TreeItem::new(
                             "d",
-                            "Delta".to_owned(),
+                            "Delta",
                             vec![
-                                TreeItem::new_leaf("e", "Echo".to_owned()),
-                                TreeItem::new_leaf("f", "Foxtrot".to_owned()),
+                                TreeItem::new_leaf("e", "Echo"),
+                                TreeItem::new_leaf("f", "Foxtrot"),
                             ],
                         )
                         .expect("all item identifiers are unique"),
-                        TreeItem::new_leaf("g", "Golf".to_owned()),
+                        TreeItem::new_leaf("g", "Golf"),
                     ],
                 )
                 .expect("all item identifiers are unique"),
-                TreeItem::new_leaf("h", "Hotel".to_owned()),
+                TreeItem::new_leaf("h", "Hotel"),
                 TreeItem::new(
                     "i",
-                    "India".to_owned(),
+                    "India",
                     vec![
-                        TreeItem::new_leaf("j", "Juliett".to_owned()),
-                        TreeItem::new_leaf("k", "Kilo".to_owned()),
-                        TreeItem::new_leaf("l", "Lima".to_owned()),
-                        TreeItem::new_leaf("m", "Mike".to_owned()),
-                        TreeItem::new_leaf("n", "November".to_owned()),
+                        TreeItem::new_leaf("j", "Juliett"),
+                        TreeItem::new_leaf("k", "Kilo"),
+                        TreeItem::new_leaf("l", "Lima"),
+                        TreeItem::new_leaf("m", "Mike"),
+                        TreeItem::new_leaf("n", "November"),
                     ],
                 )
                 .expect("all item identifiers are unique"),
-                TreeItem::new_leaf("o", "Oscar".to_owned()),
+                TreeItem::new_leaf("o", "Oscar"),
                 TreeItem::new(
                     "p",
-                    "Papa".to_owned(),
+                    "Papa",
                     vec![
-                        TreeItem::new_leaf("q", "Quebec".to_owned()),
-                        TreeItem::new_leaf("r", "Romeo".to_owned()),
-                        TreeItem::new_leaf("s", "Sierra".to_owned()),
-                        TreeItem::new_leaf("t", "Tango".to_owned()),
-                        TreeItem::new_leaf("u", "Uniform".to_owned()),
+                        TreeItem::new_leaf("q", "Quebec"),
+                        TreeItem::new_leaf("r", "Romeo"),
+                        TreeItem::new_leaf("s", "Sierra"),
+                        TreeItem::new_leaf("t", "Tango"),
+                        TreeItem::new_leaf("u", "Uniform"),
                         TreeItem::new(
                             "v",
-                            "Victor".to_owned(),
+                            "Victor",
                             vec![
-                                TreeItem::new_leaf("w", "Whiskey".to_owned()),
-                                TreeItem::new_leaf("x", "Xray".to_owned()),
-                                TreeItem::new_leaf("y", "Yankee".to_owned()),
+                                TreeItem::new_leaf("w", "Whiskey"),
+                                TreeItem::new_leaf("x", "Xray"),
+                                TreeItem::new_leaf("y", "Yankee"),
                             ],
                         )
                         .expect("all item identifiers are unique"),
                     ],
                 )
                 .expect("all item identifiers are unique"),
-                TreeItem::new_leaf("z", "Zulu".to_owned()),
+                TreeItem::new_leaf("z", "Zulu"),
             ],
         }
     }

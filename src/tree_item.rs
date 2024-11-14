@@ -1,6 +1,6 @@
 use std::collections::HashSet;
 
-use ratatui::text::Text;
+use ratatui::text::ToText;
 
 /// One item inside a [`Tree`](crate::Tree).
 ///
@@ -29,15 +29,15 @@ use ratatui::text::Text;
 ///
 /// ```
 /// # use managarr_tree_widget::TreeItem;
-/// let a = TreeItem::new_leaf("l".to_owned(), "Leaf".to_owned());
-/// let b = TreeItem::new("r".to_owned(), "Root".to_owned(), vec![a])?;
+/// let a = TreeItem::new_leaf("l", "Leaf");
+/// let b = TreeItem::new("r", "Root", vec![a])?;
 /// # Ok::<(), std::io::Error>(())
 /// ```
 #[derive(Debug, Clone)]
 pub struct TreeItem<Identifier, T>
 where
     Identifier: Clone + PartialEq + Eq + core::hash::Hash,
-    T: for<'a> Into<Text<'a>> + Clone + Default,
+    T: ToText + Clone + Default,
 {
     pub(super) identifier: Identifier,
     pub(super) content: T,
@@ -47,7 +47,7 @@ where
 impl<Identifier, T> TreeItem<Identifier, T>
 where
     Identifier: Clone + PartialEq + Eq + core::hash::Hash,
-    T: for<'a> Into<Text<'a>> + Clone + Default,
+    T: ToText + Clone + Default,
 {
     /// Create a new `TreeItem` without children.
     #[must_use]
@@ -116,7 +116,7 @@ where
 
     #[must_use]
     pub fn height(&self) -> usize {
-        self.content.clone().into().height()
+        self.content.clone().to_text().height()
     }
 
     /// Add a child to the `TreeItem`.
@@ -142,31 +142,31 @@ where
     }
 }
 
-impl TreeItem<&'static str, String> {
+impl TreeItem<&'static str, &'static str> {
     #[cfg(test)]
     #[must_use]
     pub(crate) fn example() -> Vec<Self> {
         vec![
-            Self::new_leaf("a", "Alfa".to_owned()),
+            Self::new_leaf("a", "Alfa"),
             Self::new(
                 "b",
-                "Bravo".to_owned(),
+                "Bravo",
                 vec![
-                    Self::new_leaf("c", "Charlie".to_owned()),
+                    Self::new_leaf("c", "Charlie"),
                     Self::new(
                         "d",
-                        "Delta".to_owned(),
+                        "Delta",
                         vec![
-                            Self::new_leaf("e", "Echo".to_owned()),
-                            Self::new_leaf("f", "Foxtrot".to_owned()),
+                            Self::new_leaf("e", "Echo"),
+                            Self::new_leaf("f", "Foxtrot"),
                         ],
                     )
                     .expect("all item identifiers are unique"),
-                    Self::new_leaf("g", "Golf".to_owned()),
+                    Self::new_leaf("g", "Golf"),
                 ],
             )
             .expect("all item identifiers are unique"),
-            Self::new_leaf("h", "Hotel".to_owned()),
+            Self::new_leaf("h", "Hotel"),
         ]
     }
 }
@@ -174,16 +174,16 @@ impl TreeItem<&'static str, String> {
 #[test]
 #[should_panic = "duplicate identifiers"]
 fn tree_item_new_errors_with_duplicate_identifiers() {
-    let item = TreeItem::new_leaf("same".to_owned(), "text".to_owned());
+    let item = TreeItem::new_leaf("same", "text");
     let another = item.clone();
-    TreeItem::new("root".to_owned(), "Root".to_owned(), vec![item, another]).unwrap();
+    TreeItem::new("root", "Root", vec![item, another]).unwrap();
 }
 
 #[test]
 #[should_panic = "identifier already exists"]
 fn tree_item_add_child_errors_with_duplicate_identifiers() {
-    let item = TreeItem::new_leaf("same".to_owned(), "text".to_owned());
+    let item = TreeItem::new_leaf("same", "text");
     let another = item.clone();
-    let mut root = TreeItem::new("root".to_owned(), "Root".to_owned(), vec![item]).unwrap();
+    let mut root = TreeItem::new("root", "Root", vec![item]).unwrap();
     root.add_child(another).unwrap();
 }

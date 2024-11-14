@@ -10,7 +10,7 @@ use std::collections::HashSet;
 use ratatui::buffer::Buffer;
 use ratatui::layout::Rect;
 use ratatui::style::Style;
-use ratatui::text::Text;
+use ratatui::text::ToText;
 use ratatui::widgets::{Block, Scrollbar, ScrollbarState, StatefulWidget, Widget};
 use unicode_width::UnicodeWidthStr;
 
@@ -37,7 +37,7 @@ mod tree_state;
 /// # let mut terminal = Terminal::new(TestBackend::new(32, 32)).unwrap();
 /// let mut state = TreeState::default();
 ///
-/// let item = TreeItem::new_leaf("l".to_owned(), "leaf".to_owned());
+/// let item = TreeItem::new_leaf("l", "leaf");
 /// let items = vec![item];
 ///
 /// terminal.draw(|frame| {
@@ -56,7 +56,7 @@ mod tree_state;
 pub struct Tree<'a, Identifier, T>
 where
     Identifier: Clone + PartialEq + Eq + core::hash::Hash,
-    T: for<'b> Into<Text<'b>> + Clone + Default,
+    T: ToText + Clone + Default,
 {
     items: &'a [TreeItem<Identifier, T>],
 
@@ -81,7 +81,7 @@ where
 impl<'a, Identifier, T> Tree<'a, Identifier, T>
 where
     Identifier: Clone + PartialEq + Eq + core::hash::Hash,
-    T: for<'b> Into<Text<'b>> + Clone + Default,
+    T: ToText + Clone + Default,
 {
     /// Create a new `Tree`.
     ///
@@ -172,7 +172,7 @@ fn tree_new_errors_with_duplicate_identifiers() {
 impl<'a, Identifier, T> StatefulWidget for Tree<'a, Identifier, T>
 where
     Identifier: Clone + PartialEq + Eq + core::hash::Hash,
-    T: for<'b> Into<Text<'b>> + Clone + Default,
+    T: ToText + Clone + Default,
 {
     type State = TreeState<Identifier>;
 
@@ -279,7 +279,7 @@ where
                 height,
             };
 
-            let text = item.content.clone().into();
+            let text = item.content.to_text();
             let item_style = text.style;
 
             let is_selected = state.selected == *identifier;
@@ -342,7 +342,7 @@ where
 impl<'a, Identifier, T> Widget for Tree<'a, Identifier, T>
 where
     Identifier: Clone + Default + Eq + core::hash::Hash,
-    T: for<'b> Into<Text<'b>> + Clone + Default,
+    T: ToText + Clone + Default,
 {
     fn render(self, area: Rect, buf: &mut Buffer) {
         let mut state = TreeState::default();

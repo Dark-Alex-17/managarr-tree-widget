@@ -1,7 +1,7 @@
 use std::collections::HashSet;
 
 use ratatui::layout::{Position, Rect};
-use ratatui::text::Text;
+use ratatui::text::ToText;
 
 use crate::flatten::{flatten, Flattened};
 use crate::tree_item::TreeItem;
@@ -67,7 +67,7 @@ where
         items: &'a [TreeItem<Identifier, T>],
     ) -> Vec<Flattened<'a, Identifier, T>>
     where
-        T: for<'b> Into<Text<'b>> + Clone + Default,
+        T: ToText + Clone + Default,
     {
         flatten(&self.opened, items, &[])
     }

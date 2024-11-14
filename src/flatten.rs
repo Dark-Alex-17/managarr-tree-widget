@@ -1,8 +1,7 @@
 use std::collections::HashSet;
 
-use ratatui::text::Text;
-
 use crate::tree_item::TreeItem;
+use ratatui::text::ToText;
 
 /// A flattened item of all visible [`TreeItem`]s.
 ///
@@ -11,7 +10,7 @@ use crate::tree_item::TreeItem;
 pub struct Flattened<'a, Identifier, T>
 where
     Identifier: Clone + PartialEq + Eq + core::hash::Hash,
-    T: for<'b> Into<Text<'b>> + Clone + Default,
+    T: ToText + Clone + Default,
 {
     pub identifier: Vec<Identifier>,
     pub item: &'a TreeItem<Identifier, T>,
@@ -20,7 +19,7 @@ where
 impl<'a, Identifier, T> Flattened<'a, Identifier, T>
 where
     Identifier: Clone + PartialEq + Eq + core::hash::Hash,
-    T: for<'b> Into<Text<'b>> + Clone + Default,
+    T: ToText + Clone + Default,
 {
     /// Zero based depth. Depth 0 means top level with 0 indentation.
     #[must_use]
@@ -40,7 +39,7 @@ pub fn flatten<'a, Identifier, T>(
 ) -> Vec<Flattened<'a, Identifier, T>>
 where
     Identifier: Clone + PartialEq + Eq + core::hash::Hash,
-    T: for<'b> Into<Text<'b>> + Clone + Default,
+    T: ToText + Clone + Default,
 {
     let mut result = Vec::new();
     for item in items {
