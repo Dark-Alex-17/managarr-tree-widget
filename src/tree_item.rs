@@ -29,8 +29,8 @@ use ratatui::text::Text;
 ///
 /// ```
 /// # use managarr_tree_widget::TreeItem;
-/// let a = TreeItem::new_leaf("l", "Leaf");
-/// let b = TreeItem::new("r", "Root", vec![a])?;
+/// let a = TreeItem::new_leaf("l".to_owned(), "Leaf".to_owned());
+/// let b = TreeItem::new("r".to_owned(), "Root".to_owned(), vec![a])?;
 /// # Ok::<(), std::io::Error>(())
 /// ```
 #[derive(Debug, Clone)]
@@ -174,16 +174,16 @@ impl TreeItem<&'static str, String> {
 #[test]
 #[should_panic = "duplicate identifiers"]
 fn tree_item_new_errors_with_duplicate_identifiers() {
-    let item = TreeItem::new_leaf("same", "text");
+    let item = TreeItem::new_leaf("same".to_owned(), "text".to_owned());
     let another = item.clone();
-    TreeItem::new("root", "Root", vec![item, another]).unwrap();
+    TreeItem::new("root".to_owned(), "Root".to_owned(), vec![item, another]).unwrap();
 }
 
 #[test]
 #[should_panic = "identifier already exists"]
 fn tree_item_add_child_errors_with_duplicate_identifiers() {
-    let item = TreeItem::new_leaf("same", "text");
+    let item = TreeItem::new_leaf("same".to_owned(), "text".to_owned());
     let another = item.clone();
-    let mut root = TreeItem::new("root", "Root", vec![item]).unwrap();
+    let mut root = TreeItem::new("root".to_owned(), "Root".to_owned(), vec![item]).unwrap();
     root.add_child(another).unwrap();
 }

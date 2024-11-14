@@ -74,7 +74,7 @@ fn init(criterion: &mut Criterion) {
 
     group.bench_function("empty", |bencher| {
         bencher.iter(|| {
-            let items = vec![];
+            let items = Vec::<TreeItem<String, String>>::new();
             let _ = black_box(Tree::new(black_box(&items))).unwrap();
         });
     });

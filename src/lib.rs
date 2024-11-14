@@ -37,7 +37,7 @@ mod tree_state;
 /// # let mut terminal = Terminal::new(TestBackend::new(32, 32)).unwrap();
 /// let mut state = TreeState::default();
 ///
-/// let item = TreeItem::new_leaf("l", "leaf");
+/// let item = TreeItem::new_leaf("l".to_owned(), "leaf".to_owned());
 /// let items = vec![item];
 ///
 /// terminal.draw(|frame| {
@@ -163,7 +163,7 @@ where
 #[test]
 #[should_panic = "duplicate identifiers"]
 fn tree_new_errors_with_duplicate_identifiers() {
-    let item = TreeItem::new_leaf("same", "text");
+    let item = TreeItem::new_leaf("same".to_owned(), "text".to_owned());
     let another = item.clone();
     let items = [item, another];
     let _ = Tree::new(&items).unwrap();
