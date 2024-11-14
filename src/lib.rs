@@ -30,7 +30,7 @@ mod tree_state;
 /// # Example
 ///
 /// ```
-/// # use tui_tree_widget::{Tree, TreeItem, TreeState};
+/// # use managarr_tree_widget::{Tree, TreeItem, TreeState};
 /// # use ratatui::backend::TestBackend;
 /// # use ratatui::Terminal;
 /// # use ratatui::widgets::Block;
@@ -41,7 +41,7 @@ mod tree_state;
 /// let items = vec![item];
 ///
 /// terminal.draw(|frame| {
-///     let area = frame.size();
+///     let area = frame.area();
 ///
 ///     let tree_widget = Tree::new(&items)
 ///         .expect("all item identifiers are unique")
@@ -55,7 +55,8 @@ mod tree_state;
 #[derive(Debug, Clone)]
 pub struct Tree<'a, Identifier, T>
 where
-    T: for<'b> Into<Text<'b>> + Clone,
+    Identifier: Clone + PartialEq + Eq + core::hash::Hash,
+    T: for<'b> Into<Text<'b>> + Clone + Default,
 {
     items: &'a [TreeItem<Identifier, T>],
 
@@ -80,7 +81,7 @@ where
 impl<'a, Identifier, T> Tree<'a, Identifier, T>
 where
     Identifier: Clone + PartialEq + Eq + core::hash::Hash,
-    T: for<'b> Into<Text<'b>> + Clone,
+    T: for<'b> Into<Text<'b>> + Clone + Default,
 {
     /// Create a new `Tree`.
     ///
@@ -121,7 +122,7 @@ where
     /// Show the scrollbar when rendering this widget.
     ///
     /// Experimental: Can change on any release without any additional notice.
-    /// Its there to test and experiment with whats possible with scrolling widgets.
+    /// It's there to test and experiment with what's possible with scrolling widgets.
     /// Also see <https://github.com/ratatui-org/ratatui/issues/174>
     pub const fn experimental_scrollbar(mut self, scrollbar: Option<Scrollbar<'a>>) -> Self {
         self.scrollbar = scrollbar;
@@ -171,7 +172,7 @@ fn tree_new_errors_with_duplicate_identifiers() {
 impl<'a, Identifier, T> StatefulWidget for Tree<'a, Identifier, T>
 where
     Identifier: Clone + PartialEq + Eq + core::hash::Hash,
-    T: for<'b> Into<Text<'b>> + Clone,
+    T: for<'b> Into<Text<'b>> + Clone + Default,
 {
     type State = TreeState<Identifier>;
 
@@ -341,7 +342,7 @@ where
 impl<'a, Identifier, T> Widget for Tree<'a, Identifier, T>
 where
     Identifier: Clone + Default + Eq + core::hash::Hash,
-    T: for<'b> Into<Text<'b>> + Clone,
+    T: for<'b> Into<Text<'b>> + Clone + Default,
 {
     fn render(self, area: Rect, buf: &mut Buffer) {
         let mut state = TreeState::default();

@@ -7,7 +7,7 @@ use ratatui::style::{Color, Modifier, Style};
 use ratatui::text::Span;
 use ratatui::widgets::{Block, Scrollbar, ScrollbarOrientation};
 use ratatui::{crossterm, Frame, Terminal};
-use tui_tree_widget::{Tree, TreeItem, TreeState};
+use managarr_tree_widget::{Tree, TreeItem, TreeState};
 
 #[must_use]
 struct App {
@@ -82,24 +82,6 @@ impl App {
 
     fn draw(&mut self, frame: &mut Frame) {
         let area = frame.area();
-        let selected = self.state.selected();
-        let flatten = self.state.flatten(&self.items);
-        let current_selection = flatten
-            .iter()
-            .find(|i| self.state.selected() == i.identifier);
-        let is_selected = current_selection.is_some()
-            && current_selection.unwrap().item.content().to_string() == *"Echo";
-        let style = if is_selected {
-            Style::new()
-                .fg(Color::Black)
-                .bg(Color::Cyan)
-                .add_modifier(Modifier::BOLD)
-        } else {
-            Style::new()
-                .fg(Color::Black)
-                .bg(Color::LightGreen)
-                .add_modifier(Modifier::BOLD)
-        };
         let widget = Tree::new(&self.items)
             .expect("all item identifiers are unique")
             .block(
@@ -113,7 +95,12 @@ impl App {
                     .track_symbol(None)
                     .end_symbol(None),
             ))
-            .highlight_style(style)
+            .highlight_style(
+                Style::new()
+                    .fg(Color::Black)
+                    .bg(Color::LightGreen)
+                    .add_modifier(Modifier::BOLD),
+            )
             .highlight_symbol(">> ");
         frame.render_stateful_widget(widget, area, &mut self.state);
     }

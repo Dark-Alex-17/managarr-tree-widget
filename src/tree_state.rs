@@ -14,7 +14,7 @@ use crate::tree_item::TreeItem;
 /// # Example
 ///
 /// ```
-/// # use tui_tree_widget::TreeState;
+/// # use managarr_tree_widget::TreeState;
 /// type Identifier = usize;
 ///
 /// let mut state = TreeState::<Identifier>::default();
@@ -67,7 +67,7 @@ where
         items: &'a [TreeItem<Identifier, T>],
     ) -> Vec<Flattened<'a, Identifier, T>>
     where
-        T: for<'b> Into<Text<'b>> + Clone,
+        T: for<'b> Into<Text<'b>> + Clone + Default,
     {
         flatten(&self.opened, items, &[])
     }
@@ -79,7 +79,7 @@ where
     /// Clear the selection by passing an empty identifier vector:
     ///
     /// ```rust
-    /// # use tui_tree_widget::TreeState;
+    /// # use managarr_tree_widget::TreeState;
     /// # let mut state = TreeState::<usize>::default();
     /// state.select(Vec::new());
     /// ```
@@ -195,13 +195,13 @@ where
     /// # Example
     ///
     /// ```
-    /// # use tui_tree_widget::TreeState;
+    /// # use managarr_tree_widget::TreeState;
     /// # type Identifier = usize;
     /// # let mut state = TreeState::<Identifier>::default();
     /// // Move the selection one down
-    /// state.select_visible_relative(|current| {
+    /// state.select_relative(|current| {
     ///     // When nothing is currently selected, select index 0
-    ///     // Otherwise select current + 1 (without panicing)
+    ///     // Otherwise select current + 1 (without panicking)
     ///     current.map_or(0, |current| current.saturating_add(1))
     /// });
     /// ```
@@ -230,13 +230,13 @@ where
     /// # Example
     ///
     /// ```
-    /// # use tui_tree_widget::TreeState;
+    /// # use managarr_tree_widget::TreeState;
     /// # type Identifier = usize;
     /// # let mut state = TreeState::<Identifier>::default();
     /// // Move the selection one down
     /// state.select_relative(|current| {
     ///     // When nothing is currently selected, select index 0
-    ///     // Otherwise select current + 1 (without panicing)
+    ///     // Otherwise select current + 1 (without panicking)
     ///     current.map_or(0, |current| current.saturating_add(1))
     /// });
     /// ```

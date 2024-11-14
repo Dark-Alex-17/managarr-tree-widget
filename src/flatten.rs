@@ -10,7 +10,8 @@ use crate::tree_item::TreeItem;
 #[must_use]
 pub struct Flattened<'a, Identifier, T>
 where
-    T: for<'b> Into<Text<'b>> + Clone,
+    Identifier: Clone + PartialEq + Eq + core::hash::Hash,
+    T: for<'b> Into<Text<'b>> + Clone + Default,
 {
     pub identifier: Vec<Identifier>,
     pub item: &'a TreeItem<Identifier, T>,
@@ -18,7 +19,8 @@ where
 
 impl<'a, Identifier, T> Flattened<'a, Identifier, T>
 where
-    T: for<'b> Into<Text<'b>> + Clone,
+    Identifier: Clone + PartialEq + Eq + core::hash::Hash,
+    T: for<'b> Into<Text<'b>> + Clone + Default,
 {
     /// Zero based depth. Depth 0 means top level with 0 indentation.
     #[must_use]
@@ -38,7 +40,7 @@ pub fn flatten<'a, Identifier, T>(
 ) -> Vec<Flattened<'a, Identifier, T>>
 where
     Identifier: Clone + PartialEq + Eq + core::hash::Hash,
-    T: for<'b> Into<Text<'b>> + Clone,
+    T: for<'b> Into<Text<'b>> + Clone + Default,
 {
     let mut result = Vec::new();
     for item in items {

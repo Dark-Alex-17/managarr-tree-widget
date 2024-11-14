@@ -4,67 +4,67 @@ use criterion::{criterion_group, criterion_main, BatchSize, Criterion, Throughpu
 use ratatui::buffer::Buffer;
 use ratatui::layout::Rect;
 use ratatui::widgets::StatefulWidget;
-use tui_tree_widget::{Tree, TreeItem, TreeState};
+use managarr_tree_widget::{Tree, TreeItem, TreeState};
 
 #[must_use]
-fn example_items() -> Vec<TreeItem<'static, &'static str>> {
+fn example_items() -> Vec<TreeItem<&'static str, String>> {
     vec![
-        TreeItem::new_leaf("a", "Alfa"),
+        TreeItem::new_leaf("a", "Alfa".to_owned()),
         TreeItem::new(
             "b",
-            "Bravo",
+            "Bravo".to_owned(),
             vec![
-                TreeItem::new_leaf("c", "Charlie"),
+                TreeItem::new_leaf("c", "Charlie".to_owned()),
                 TreeItem::new(
                     "d",
-                    "Delta",
+                    "Delta".to_owned(),
                     vec![
-                        TreeItem::new_leaf("e", "Echo"),
-                        TreeItem::new_leaf("f", "Foxtrot"),
+                        TreeItem::new_leaf("e", "Echo".to_owned()),
+                        TreeItem::new_leaf("f", "Foxtrot".to_owned()),
                     ],
                 )
                 .expect("all item identifiers are unique"),
-                TreeItem::new_leaf("g", "Golf"),
+                TreeItem::new_leaf("g", "Golf".to_owned()),
             ],
         )
         .expect("all item identifiers are unique"),
-        TreeItem::new_leaf("h", "Hotel"),
+        TreeItem::new_leaf("h", "Hotel".to_owned()),
         TreeItem::new(
             "i",
-            "India",
+            "India".to_owned(),
             vec![
-                TreeItem::new_leaf("j", "Juliett"),
-                TreeItem::new_leaf("k", "Kilo"),
-                TreeItem::new_leaf("l", "Lima"),
-                TreeItem::new_leaf("m", "Mike"),
-                TreeItem::new_leaf("n", "November"),
+                TreeItem::new_leaf("j", "Juliett".to_owned()),
+                TreeItem::new_leaf("k", "Kilo".to_owned()),
+                TreeItem::new_leaf("l", "Lima".to_owned()),
+                TreeItem::new_leaf("m", "Mike".to_owned()),
+                TreeItem::new_leaf("n", "November".to_owned()),
             ],
         )
         .expect("all item identifiers are unique"),
-        TreeItem::new_leaf("o", "Oscar"),
+        TreeItem::new_leaf("o", "Oscar".to_owned()),
         TreeItem::new(
             "p",
-            "Papa",
+            "Papa".to_owned(),
             vec![
-                TreeItem::new_leaf("q", "Quebec"),
-                TreeItem::new_leaf("r", "Romeo"),
-                TreeItem::new_leaf("s", "Sierra"),
-                TreeItem::new_leaf("t", "Tango"),
-                TreeItem::new_leaf("u", "Uniform"),
+                TreeItem::new_leaf("q", "Quebec".to_owned()),
+                TreeItem::new_leaf("r", "Romeo".to_owned()),
+                TreeItem::new_leaf("s", "Sierra".to_owned()),
+                TreeItem::new_leaf("t", "Tango".to_owned()),
+                TreeItem::new_leaf("u", "Uniform".to_owned()),
                 TreeItem::new(
                     "v",
-                    "Victor",
+                    "Victor".to_owned(),
                     vec![
-                        TreeItem::new_leaf("w", "Whiskey"),
-                        TreeItem::new_leaf("x", "Xray"),
-                        TreeItem::new_leaf("y", "Yankee"),
+                        TreeItem::new_leaf("w", "Whiskey".to_owned()),
+                        TreeItem::new_leaf("x", "Xray".to_owned()),
+                        TreeItem::new_leaf("y", "Yankee".to_owned()),
                     ],
                 )
                 .expect("all item identifiers are unique"),
             ],
         )
         .expect("all item identifiers are unique"),
-        TreeItem::new_leaf("z", "Zulu"),
+        TreeItem::new_leaf("z", "Zulu".to_owned()),
     ]
 }
 
@@ -75,14 +75,14 @@ fn init(criterion: &mut Criterion) {
     group.bench_function("empty", |bencher| {
         bencher.iter(|| {
             let items = vec![];
-            let _: Tree<usize> = black_box(Tree::new(black_box(&items))).unwrap();
+            let _ = black_box(Tree::new(black_box(&items))).unwrap();
         });
     });
 
     group.bench_function("example-items", |bencher| {
         bencher.iter(|| {
             let items = example_items();
-            let _: Tree<_> = black_box(Tree::new(black_box(&items))).unwrap();
+            let _ = black_box(Tree::new(black_box(&items))).unwrap();
         });
     });
 
@@ -96,7 +96,7 @@ fn renders(criterion: &mut Criterion) {
     let buffer_size = Rect::new(0, 0, 100, 100);
 
     group.bench_function("empty", |bencher| {
-        let items: Vec<TreeItem<usize>> = vec![];
+        let items: Vec<TreeItem<usize, String>> = vec![];
         let tree = Tree::new(&items).unwrap();
         let mut state = TreeState::default();
         bencher.iter_batched(

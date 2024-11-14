@@ -15,7 +15,7 @@ use ratatui::text::Text;
 ///
 /// The `text` can be different from its `identifier`.
 /// To repeat the filename analogy: File browsers sometimes hide file extensions.
-/// The filename `main.rs` is the identifier while its shown as `main`.
+/// The filename `main.rs` is the identifier while it's shown as `main`.
 /// Two files `main.rs` and `main.toml` can exist in the same directory and can both be displayed as `main` but their identifier is different.
 ///
 /// Just like every file in a file system can be uniquely identified with its file and directory names each [`TreeItem`] in a [`Tree`](crate::Tree) can be with these identifiers.
@@ -28,7 +28,7 @@ use ratatui::text::Text;
 /// # Example
 ///
 /// ```
-/// # use tui_tree_widget::TreeItem;
+/// # use managarr_tree_widget::TreeItem;
 /// let a = TreeItem::new_leaf("l", "Leaf");
 /// let b = TreeItem::new("r", "Root", vec![a])?;
 /// # Ok::<(), std::io::Error>(())
@@ -36,7 +36,8 @@ use ratatui::text::Text;
 #[derive(Debug, Clone)]
 pub struct TreeItem<Identifier, T>
 where
-    T: for<'a> Into<Text<'a>> + Clone,
+    Identifier: Clone + PartialEq + Eq + core::hash::Hash,
+    T: for<'a> Into<Text<'a>> + Clone + Default,
 {
     pub(super) identifier: Identifier,
     pub(super) content: T,
@@ -46,11 +47,11 @@ where
 impl<Identifier, T> TreeItem<Identifier, T>
 where
     Identifier: Clone + PartialEq + Eq + core::hash::Hash,
-    T: for<'a> Into<Text<'a>> + Clone,
+    T: for<'a> Into<Text<'a>> + Clone + Default,
 {
     /// Create a new `TreeItem` without children.
     #[must_use]
-    pub fn new_leaf(identifier: Identifier, content: T) -> Self {
+    pub const fn new_leaf(identifier: Identifier, content: T) -> Self {
         Self {
             identifier,
             content,
@@ -107,7 +108,7 @@ where
 
     /// Get a mutable reference to a child by index.
     ///
-    /// When you choose to change the `identifier` the [`TreeState`](crate::TreeState) might not work as expected afterwards.
+    /// When you choose to change the `identifier` the [`TreeState`](crate::TreeState) might not work as expected afterward.
     #[must_use]
     pub fn child_mut(&mut self, index: usize) -> Option<&mut Self> {
         self.children.get_mut(index)
