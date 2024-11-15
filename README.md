@@ -6,5 +6,5 @@
 
 
 ## Credit
-The original project for this widget is the [Ratatui Tree Widget](https://github.com/EdJoPaTo/tui-rs-tree-widget), which was purppose built for the specific use
+The original project for this widget is the [Ratatui Tree Widget](https://github.com/EdJoPaTo/tui-rs-tree-widget), which was purpose built for the specific use
 case of [`mqttui`](https://github.com/EdJoPaTo/mqttui).
