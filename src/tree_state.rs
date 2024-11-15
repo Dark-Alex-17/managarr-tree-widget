@@ -1,5 +1,6 @@
 use std::collections::HashSet;
-
+use std::fmt::Display;
+use std::hash::Hash;
 use ratatui::layout::{Position, Rect};
 use ratatui::text::ToText;
 
@@ -8,37 +9,30 @@ use crate::tree_item::TreeItem;
 
 /// Keeps the state of what is currently selected and what was opened in a [`Tree`](crate::Tree).
 ///
-/// The generic argument `Identifier` is used to keep the state like the currently selected or opened [`TreeItem`]s in the [`TreeState`].
-/// For more information see [`TreeItem`].
-///
 /// # Example
 ///
 /// ```
 /// # use managarr_tree_widget::TreeState;
-/// type Identifier = usize;
 ///
-/// let mut state = TreeState::<Identifier>::default();
+/// let mut state = TreeState::default();
 /// ```
 #[must_use]
 #[derive(Debug, Default)]
-pub struct TreeState<Identifier> {
+pub struct TreeState {
     pub(super) offset: usize,
-    pub(super) opened: HashSet<Vec<Identifier>>,
-    pub(super) selected: Vec<Identifier>,
+    pub(super) opened: HashSet<Vec<u64>>,
+    pub(super) selected: Vec<u64>,
     pub(super) ensure_selected_in_view_on_next_render: bool,
 
     pub(super) last_area: Rect,
     pub(super) last_biggest_index: usize,
     /// All identifiers open on last render
-    pub(super) last_identifiers: Vec<Vec<Identifier>>,
+    pub(super) last_identifiers: Vec<Vec<u64>>,
     /// Identifier rendered at `y` on last render
-    pub(super) last_rendered_identifiers: Vec<(u16, Vec<Identifier>)>,
+    pub(super) last_rendered_identifiers: Vec<(u16, Vec<u64>)>,
 }
 
-impl<Identifier> TreeState<Identifier>
-where
-    Identifier: Clone + PartialEq + Eq + core::hash::Hash,
-{
+impl TreeState {
     #[must_use]
     pub const fn get_offset(&self) -> usize {
         self.offset
@@ -46,17 +40,17 @@ where
 
     #[must_use]
     #[deprecated = "Use self.opened()"]
-    pub fn get_all_opened(&self) -> Vec<Vec<Identifier>> {
+    pub fn get_all_opened(&self) -> Vec<Vec<u64>> {
         self.opened.iter().cloned().collect()
     }
 
     #[must_use]
-    pub const fn opened(&self) -> &HashSet<Vec<Identifier>> {
+    pub const fn opened(&self) -> &HashSet<Vec<u64>> {
         &self.opened
     }
 
     #[must_use]
-    pub fn selected(&self) -> &[Identifier] {
+    pub fn selected(&self) -> &[u64] {
         &self.selected
     }
 
@@ -64,10 +58,10 @@ where
     #[must_use]
     pub fn flatten<'a, T>(
         &self,
-        items: &'a [TreeItem<Identifier, T>],
-    ) -> Vec<Flattened<'a, Identifier, T>>
+        items: &'a [TreeItem<T>],
+    ) -> Vec<Flattened<'a, T>>
     where
-        T: ToText + Clone + Default,
+        T: ToText + Clone + Default + Display + Hash,
     {
         flatten(&self.opened, items, &[])
     }
@@ -80,10 +74,10 @@ where
     ///
     /// ```rust
     /// # use managarr_tree_widget::TreeState;
-    /// # let mut state = TreeState::<usize>::default();
+    /// # let mut state = TreeState::default();
     /// state.select(Vec::new());
     /// ```
-    pub fn select(&mut self, identifier: Vec<Identifier>) -> bool {
+    pub fn select(&mut self, identifier: Vec<u64>) -> bool {
         self.ensure_selected_in_view_on_next_render = true;
         let changed = self.selected != identifier;
         self.selected = identifier;
@@ -93,7 +87,7 @@ where
     /// Open a tree node.
     /// Returns `true` when it was closed and has been opened.
     /// Returns `false` when it was already open.
-    pub fn open(&mut self, identifier: Vec<Identifier>) -> bool {
+    pub fn open(&mut self, identifier: Vec<u64>) -> bool {
         if identifier.is_empty() {
             false
         } else {
@@ -104,7 +98,7 @@ where
     /// Close a tree node.
     /// Returns `true` when it was open and has been closed.
     /// Returns `false` when it was already closed.
-    pub fn close(&mut self, identifier: &[Identifier]) -> bool {
+    pub fn close(&mut self, identifier: &[u64]) -> bool {
         self.opened.remove(identifier)
     }
 
@@ -113,7 +107,7 @@ where
     ///
     /// Returns `true` when a node is opened / closed.
     /// As toggle always changes something, this only returns `false` when an empty identifier is given.
-    pub fn toggle(&mut self, identifier: Vec<Identifier>) -> bool {
+    pub fn toggle(&mut self, identifier: Vec<u64>) -> bool {
         if identifier.is_empty() {
             false
         } else if self.opened.contains(&identifier) {
@@ -196,8 +190,7 @@ where
     ///
     /// ```
     /// # use managarr_tree_widget::TreeState;
-    /// # type Identifier = usize;
-    /// # let mut state = TreeState::<Identifier>::default();
+    /// # let mut state = TreeState::default();
     /// // Move the selection one down
     /// state.select_relative(|current| {
     ///     // When nothing is currently selected, select index 0
@@ -231,8 +224,7 @@ where
     ///
     /// ```
     /// # use managarr_tree_widget::TreeState;
-    /// # type Identifier = usize;
-    /// # let mut state = TreeState::<Identifier>::default();
+    /// # let mut state = TreeState::default();
     /// // Move the selection one down
     /// state.select_relative(|current| {
     ///     // When nothing is currently selected, select index 0
@@ -259,7 +251,7 @@ where
 
     /// Get the identifier that was rendered for the given position on last render.
     #[must_use]
-    pub fn rendered_at(&self, position: Position) -> Option<&[Identifier]> {
+    pub fn rendered_at(&self, position: Position) -> Option<&[u64]> {
         if !self.last_area.contains(position) {
             return None;
         }

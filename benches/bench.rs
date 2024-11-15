@@ -7,64 +7,59 @@ use ratatui::widgets::StatefulWidget;
 use managarr_tree_widget::{Tree, TreeItem, TreeState};
 
 #[must_use]
-fn example_items() -> Vec<TreeItem<&'static str, &'static str>> {
+fn example_items() -> Vec<TreeItem<&'static str>> {
     vec![
-        TreeItem::new_leaf("a", "Alfa"),
+        TreeItem::new_leaf( "Alfa"),
         TreeItem::new(
-            "b",
             "Bravo",
             vec![
-                TreeItem::new_leaf("c", "Charlie"),
+                TreeItem::new_leaf( "Charlie"),
                 TreeItem::new(
-                    "d",
                     "Delta",
                     vec![
-                        TreeItem::new_leaf("e", "Echo"),
-                        TreeItem::new_leaf("f", "Foxtrot"),
+                        TreeItem::new_leaf( "Echo"),
+                        TreeItem::new_leaf( "Foxtrot"),
                     ],
                 )
                 .expect("all item identifiers are unique"),
-                TreeItem::new_leaf("g", "Golf"),
+                TreeItem::new_leaf( "Golf"),
             ],
         )
         .expect("all item identifiers are unique"),
-        TreeItem::new_leaf("h", "Hotel"),
+        TreeItem::new_leaf( "Hotel"),
         TreeItem::new(
-            "i",
             "India",
             vec![
-                TreeItem::new_leaf("j", "Juliett"),
-                TreeItem::new_leaf("k", "Kilo"),
-                TreeItem::new_leaf("l", "Lima"),
-                TreeItem::new_leaf("m", "Mike"),
-                TreeItem::new_leaf("n", "November"),
+                TreeItem::new_leaf( "Juliet"),
+                TreeItem::new_leaf("Kilo"),
+                TreeItem::new_leaf("Lima"),
+                TreeItem::new_leaf("Mike"),
+                TreeItem::new_leaf("November"),
             ],
         )
         .expect("all item identifiers are unique"),
-        TreeItem::new_leaf("o", "Oscar"),
+        TreeItem::new_leaf( "Oscar"),
         TreeItem::new(
-            "p",
             "Papa",
             vec![
-                TreeItem::new_leaf("q", "Quebec"),
-                TreeItem::new_leaf("r", "Romeo"),
-                TreeItem::new_leaf("s", "Sierra"),
-                TreeItem::new_leaf("t", "Tango"),
-                TreeItem::new_leaf("u", "Uniform"),
+                TreeItem::new_leaf( "Quebec"),
+                TreeItem::new_leaf( "Romeo"),
+                TreeItem::new_leaf( "Sierra"),
+                TreeItem::new_leaf( "Tango"),
+                TreeItem::new_leaf( "Uniform"),
                 TreeItem::new(
-                    "v",
                     "Victor",
                     vec![
-                        TreeItem::new_leaf("w", "Whiskey"),
-                        TreeItem::new_leaf("x", "Xray"),
-                        TreeItem::new_leaf("y", "Yankee"),
+                        TreeItem::new_leaf("Whiskey"),
+                        TreeItem::new_leaf ("Xray"),
+                        TreeItem::new_leaf( "Yankee"),
                     ],
                 )
                 .expect("all item identifiers are unique"),
             ],
         )
         .expect("all item identifiers are unique"),
-        TreeItem::new_leaf("z", "Zulu"),
+        TreeItem::new_leaf( "Zulu"),
     ]
 }
 
@@ -74,7 +69,7 @@ fn init(criterion: &mut Criterion) {
 
     group.bench_function("empty", |bencher| {
         bencher.iter(|| {
-            let items = Vec::<TreeItem<String, String>>::new();
+            let items = Vec::<TreeItem<String>>::new();
             let _ = black_box(Tree::new(black_box(&items))).unwrap();
         });
     });
@@ -96,7 +91,7 @@ fn renders(criterion: &mut Criterion) {
     let buffer_size = Rect::new(0, 0, 100, 100);
 
     group.bench_function("empty", |bencher| {
-        let items: Vec<TreeItem<usize, String>> = vec![];
+        let items: Vec<TreeItem<String>> = vec![];
         let tree = Tree::new(&items).unwrap();
         let mut state = TreeState::default();
         bencher.iter_batched(
@@ -112,8 +107,8 @@ fn renders(criterion: &mut Criterion) {
         let items = example_items();
         let tree = Tree::new(&items).unwrap();
         let mut state = TreeState::default();
-        state.open(vec!["b"]);
-        state.open(vec!["b", "d"]);
+        state.open(vec![2]);
+        state.open(vec![2, 4]);
         bencher.iter_batched(
             || (tree.clone(), Buffer::empty(buffer_size)),
             |(tree, mut buffer)| {

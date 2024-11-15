@@ -1,14 +1,15 @@
 use std::collections::HashSet;
-
+use std::fmt::Display;
+use std::hash::{DefaultHasher, Hash, Hasher};
 use ratatui::text::ToText;
 
 /// One item inside a [`Tree`](crate::Tree).
 ///
 /// Can have zero or more `children`.
 ///
-/// # Identifier
+/// # identifier
 ///
-/// The generic argument `Identifier` is used to keep the state like the currently selected or opened [`TreeItem`]s in the [`TreeState`](crate::TreeState).
+/// The `identifier` is used to keep the state like the currently selected or opened [`TreeItem`]s in the [`TreeState`](crate::TreeState).
 ///
 /// It needs to be unique among its siblings but can be used again on parent or child [`TreeItem`]s.
 /// A common example would be a filename which has to be unique in its directory while it can exist in another.
@@ -29,42 +30,30 @@ use ratatui::text::ToText;
 ///
 /// ```
 /// # use managarr_tree_widget::TreeItem;
-/// let a = TreeItem::new_leaf("l", "Leaf");
-/// let b = TreeItem::new("r", "Root", vec![a])?;
+/// let a = TreeItem::new_leaf("Leaf");
+/// let b = TreeItem::new("Root", vec![a])?;
 /// # Ok::<(), std::io::Error>(())
 /// ```
 #[derive(Debug, Clone)]
-pub struct TreeItem<Identifier, T>
+pub struct TreeItem<T>
 where
-    Identifier: Clone + PartialEq + Eq + core::hash::Hash,
-    T: ToText + Clone + Default,
+    T: ToText + Clone + Default + Display + Hash,
 {
-    pub(super) identifier: Identifier,
+    pub(super) identifier: u64,
     pub(super) content: T,
     pub(super) children: Vec<Self>,
 }
 
-impl<Identifier, T> TreeItem<Identifier, T>
+impl<T> TreeItem<T>
 where
-    Identifier: Clone + PartialEq + Eq + core::hash::Hash,
-    T: ToText + Clone + Default,
+    T: ToText + Clone + Default + Display + Hash,
 {
-    /// Create a new `TreeItem` without children.
-    #[must_use]
-    pub const fn new_leaf(identifier: Identifier, content: T) -> Self {
-        Self {
-            identifier,
-            content,
-            children: Vec::new(),
-        }
-    }
-
     /// Create a new `TreeItem` with children.
     ///
     /// # Errors
     ///
     /// Errors when there are duplicate identifiers in the children.
-    pub fn new(identifier: Identifier, content: T, children: Vec<Self>) -> std::io::Result<Self> {
+    pub fn new(content: T, children: Vec<Self>) -> std::io::Result<Self> {
         let identifiers = children
             .iter()
             .map(|item| &item.identifier)
@@ -76,17 +65,33 @@ where
             ));
         }
 
+        let mut hasher = DefaultHasher::new();
+        content.hash(&mut hasher);
+
         Ok(Self {
-            identifier,
+            identifier: hasher.finish(),
             content,
             children,
         })
     }
 
+    /// Create a new `TreeItem` without children.
+    #[must_use]
+    pub fn new_leaf(content: T) -> Self {
+        let mut hasher = DefaultHasher::new();
+        content.hash(&mut hasher);
+        
+        Self {
+            identifier: hasher.finish(),
+            content,
+            children: Vec::new(),
+        }
+    }
+
     /// Get a reference to the identifier.
     #[must_use]
-    pub const fn identifier(&self) -> &Identifier {
-        &self.identifier
+    pub const fn identifier(&self) -> u64 {
+        self.identifier
     }
 
     /// Get a reference to the text.
@@ -142,31 +147,29 @@ where
     }
 }
 
-impl TreeItem<&'static str, &'static str> {
+impl TreeItem<&'static str> {
     #[cfg(test)]
     #[must_use]
     pub(crate) fn example() -> Vec<Self> {
         vec![
-            Self::new_leaf("a", "Alfa"),
+            Self::new_leaf("Alfa"),
             Self::new(
-                "b",
                 "Bravo",
                 vec![
-                    Self::new_leaf("c", "Charlie"),
+                    Self::new_leaf("Charlie"),
                     Self::new(
-                        "d",
                         "Delta",
                         vec![
-                            Self::new_leaf("e", "Echo"),
-                            Self::new_leaf("f", "Foxtrot"),
+                            Self::new_leaf("Echo"),
+                            Self::new_leaf( "Foxtrot"),
                         ],
                     )
                     .expect("all item identifiers are unique"),
-                    Self::new_leaf("g", "Golf"),
+                    Self::new_leaf("Golf"),
                 ],
             )
             .expect("all item identifiers are unique"),
-            Self::new_leaf("h", "Hotel"),
+            Self::new_leaf( "Hotel"),
         ]
     }
 }
@@ -174,16 +177,16 @@ impl TreeItem<&'static str, &'static str> {
 #[test]
 #[should_panic = "duplicate identifiers"]
 fn tree_item_new_errors_with_duplicate_identifiers() {
-    let item = TreeItem::new_leaf("same", "text");
+    let item = TreeItem::new_leaf( "text");
     let another = item.clone();
-    TreeItem::new("root", "Root", vec![item, another]).unwrap();
+    TreeItem::new("Root", vec![item, another]).unwrap();
 }
 
 #[test]
 #[should_panic = "identifier already exists"]
 fn tree_item_add_child_errors_with_duplicate_identifiers() {
-    let item = TreeItem::new_leaf("same", "text");
+    let item = TreeItem::new_leaf("text");
     let another = item.clone();
-    let mut root = TreeItem::new("root", "Root", vec![item]).unwrap();
+    let mut root = TreeItem::new( "Root", vec![item]).unwrap();
     root.add_child(another).unwrap();
 }

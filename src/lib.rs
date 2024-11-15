@@ -6,7 +6,8 @@ The user interaction state (like the current selection) is stored in the [`TreeS
 */
 
 use std::collections::HashSet;
-
+use std::fmt::Display;
+use std::hash::Hash;
 use ratatui::buffer::Buffer;
 use ratatui::layout::Rect;
 use ratatui::style::Style;
@@ -24,9 +25,6 @@ mod tree_state;
 
 /// A `Tree` which can be rendered.
 ///
-/// The generic argument `Identifier` is used to keep the state like the currently selected or opened [`TreeItem`]s in the [`TreeState`].
-/// For more information see [`TreeItem`].
-///
 /// # Example
 ///
 /// ```
@@ -37,7 +35,7 @@ mod tree_state;
 /// # let mut terminal = Terminal::new(TestBackend::new(32, 32)).unwrap();
 /// let mut state = TreeState::default();
 ///
-/// let item = TreeItem::new_leaf("l", "leaf");
+/// let item = TreeItem::new_leaf("leaf");
 /// let items = vec![item];
 ///
 /// terminal.draw(|frame| {
@@ -53,12 +51,11 @@ mod tree_state;
 /// ```
 #[must_use]
 #[derive(Debug, Clone)]
-pub struct Tree<'a, Identifier, T>
+pub struct Tree<'a, T>
 where
-    Identifier: Clone + PartialEq + Eq + core::hash::Hash,
-    T: ToText + Clone + Default,
+    T: ToText + Clone + Default + Display + Hash,
 {
-    items: &'a [TreeItem<Identifier, T>],
+    items: &'a [TreeItem<T>],
 
     block: Option<Block<'a>>,
     scrollbar: Option<Scrollbar<'a>>,
@@ -78,17 +75,16 @@ where
     node_no_children_symbol: &'a str,
 }
 
-impl<'a, Identifier, T> Tree<'a, Identifier, T>
+impl<'a, T> Tree<'a, T>
 where
-    Identifier: Clone + PartialEq + Eq + core::hash::Hash,
-    T: ToText + Clone + Default,
+    T: ToText + Clone + Default + Display + Hash,
 {
     /// Create a new `Tree`.
     ///
     /// # Errors
     ///
     /// Errors when there are duplicate identifiers in the children.
-    pub fn new(items: &'a [TreeItem<Identifier, T>]) -> std::io::Result<Self> {
+    pub fn new(items: &'a [TreeItem<T>]) -> std::io::Result<Self> {
         let identifiers = items
             .iter()
             .map(|item| &item.identifier)
@@ -163,18 +159,17 @@ where
 #[test]
 #[should_panic = "duplicate identifiers"]
 fn tree_new_errors_with_duplicate_identifiers() {
-    let item = TreeItem::new_leaf("same".to_owned(), "text".to_owned());
+    let item = TreeItem::new_leaf("text".to_owned());
     let another = item.clone();
     let items = [item, another];
     let _ = Tree::new(&items).unwrap();
 }
 
-impl<'a, Identifier, T> StatefulWidget for Tree<'a, Identifier, T>
+impl<'a, T> StatefulWidget for Tree<'a, T>
 where
-    Identifier: Clone + PartialEq + Eq + core::hash::Hash,
-    T: ToText + Clone + Default,
+    T: ToText + Clone + Default + Display + Hash,
 {
-    type State = TreeState<Identifier>;
+    type State = TreeState;
 
     #[allow(clippy::too_many_lines)]
     fn render(self, full_area: Rect, buf: &mut Buffer, state: &mut Self::State) {
@@ -339,10 +334,9 @@ where
     }
 }
 
-impl<'a, Identifier, T> Widget for Tree<'a, Identifier, T>
+impl<'a, T> Widget for Tree<'a, T>
 where
-    Identifier: Clone + Default + Eq + core::hash::Hash,
-    T: ToText + Clone + Default,
+    T: ToText + Clone + Default + Display + Hash,
 {
     fn render(self, area: Rect, buf: &mut Buffer) {
         let mut state = TreeState::default();
@@ -352,11 +346,12 @@ where
 
 #[cfg(test)]
 mod render_tests {
+    use std::hash::{DefaultHasher, Hasher};
     use super::*;
 
     #[must_use]
     #[track_caller]
-    fn render(width: u16, height: u16, state: &mut TreeState<&'static str>) -> Buffer {
+    fn render(width: u16, height: u16, state: &mut TreeState) -> Buffer {
         let items = TreeItem::example();
         let tree = Tree::new(&items).unwrap();
         let area = Rect::new(0, 0, width, height);
@@ -389,7 +384,9 @@ mod render_tests {
     #[test]
     fn depth_one() {
         let mut state = TreeState::default();
-        state.open(vec!["b"]);
+        let mut hasher = DefaultHasher::new();
+        "Bravo".hash(&mut hasher);
+        state.open(vec![hasher.finish()]);
         let buffer = render(13, 7, &mut state);
         let expected = Buffer::with_lines([
             "  Alfa       ",
@@ -406,8 +403,13 @@ mod render_tests {
     #[test]
     fn depth_two() {
         let mut state = TreeState::default();
-        state.open(vec!["b"]);
-        state.open(vec!["b", "d"]);
+        let mut hasher = DefaultHasher::new();
+        "Bravo".hash(&mut hasher);
+        let bravo_hash = hasher.finish();
+        let mut hasher = DefaultHasher::new();
+        "Delta".hash(&mut hasher);
+        state.open(vec![bravo_hash]);
+        state.open(vec![bravo_hash, hasher.finish()]);
         let buffer = render(15, 9, &mut state);
         let expected = Buffer::with_lines([
             "  Alfa         ",
