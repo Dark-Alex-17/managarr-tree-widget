@@ -1,8 +1,8 @@
+use ratatui::layout::{Position, Rect};
+use ratatui::text::ToText;
 use std::collections::HashSet;
 use std::fmt::Display;
 use std::hash::Hash;
-use ratatui::layout::{Position, Rect};
-use ratatui::text::ToText;
 
 use crate::flatten::{flatten, Flattened};
 use crate::tree_item::TreeItem;
@@ -56,10 +56,7 @@ impl TreeState {
 
     /// Get a flat list of all currently viewable (including by scrolling) [`TreeItem`]s with this `TreeState`.
     #[must_use]
-    pub fn flatten<'a, T>(
-        &self,
-        items: &'a [TreeItem<T>],
-    ) -> Vec<Flattened<'a, T>>
+    pub fn flatten<'a, T>(&self, items: &'a [TreeItem<T>]) -> Vec<Flattened<'a, T>>
     where
         T: ToText + Clone + Default + Display + Hash,
     {

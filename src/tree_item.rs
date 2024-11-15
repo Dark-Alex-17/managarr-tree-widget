@@ -1,7 +1,7 @@
+use ratatui::text::ToText;
 use std::collections::HashSet;
 use std::fmt::Display;
 use std::hash::{DefaultHasher, Hash, Hasher};
-use ratatui::text::ToText;
 
 /// One item inside a [`Tree`](crate::Tree).
 ///
@@ -80,7 +80,7 @@ where
     pub fn new_leaf(content: T) -> Self {
         let mut hasher = DefaultHasher::new();
         content.hash(&mut hasher);
-        
+
         Self {
             identifier: hasher.finish(),
             content,
@@ -159,17 +159,14 @@ impl TreeItem<&'static str> {
                     Self::new_leaf("Charlie"),
                     Self::new(
                         "Delta",
-                        vec![
-                            Self::new_leaf("Echo"),
-                            Self::new_leaf( "Foxtrot"),
-                        ],
+                        vec![Self::new_leaf("Echo"), Self::new_leaf("Foxtrot")],
                     )
                     .expect("all item identifiers are unique"),
                     Self::new_leaf("Golf"),
                 ],
             )
             .expect("all item identifiers are unique"),
-            Self::new_leaf( "Hotel"),
+            Self::new_leaf("Hotel"),
         ]
     }
 }
@@ -177,7 +174,7 @@ impl TreeItem<&'static str> {
 #[test]
 #[should_panic = "duplicate identifiers"]
 fn tree_item_new_errors_with_duplicate_identifiers() {
-    let item = TreeItem::new_leaf( "text");
+    let item = TreeItem::new_leaf("text");
     let another = item.clone();
     TreeItem::new("Root", vec![item, another]).unwrap();
 }
@@ -187,6 +184,6 @@ fn tree_item_new_errors_with_duplicate_identifiers() {
 fn tree_item_add_child_errors_with_duplicate_identifiers() {
     let item = TreeItem::new_leaf("text");
     let another = item.clone();
-    let mut root = TreeItem::new( "Root", vec![item]).unwrap();
+    let mut root = TreeItem::new("Root", vec![item]).unwrap();
     root.add_child(another).unwrap();
 }

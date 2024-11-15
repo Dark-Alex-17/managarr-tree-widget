@@ -1,36 +1,33 @@
 use std::hint::black_box;
 
 use criterion::{criterion_group, criterion_main, BatchSize, Criterion, Throughput};
+use managarr_tree_widget::{Tree, TreeItem, TreeState};
 use ratatui::buffer::Buffer;
 use ratatui::layout::Rect;
 use ratatui::widgets::StatefulWidget;
-use managarr_tree_widget::{Tree, TreeItem, TreeState};
 
 #[must_use]
 fn example_items() -> Vec<TreeItem<&'static str>> {
     vec![
-        TreeItem::new_leaf( "Alfa"),
+        TreeItem::new_leaf("Alfa"),
         TreeItem::new(
             "Bravo",
             vec![
-                TreeItem::new_leaf( "Charlie"),
+                TreeItem::new_leaf("Charlie"),
                 TreeItem::new(
                     "Delta",
-                    vec![
-                        TreeItem::new_leaf( "Echo"),
-                        TreeItem::new_leaf( "Foxtrot"),
-                    ],
+                    vec![TreeItem::new_leaf("Echo"), TreeItem::new_leaf("Foxtrot")],
                 )
                 .expect("all item identifiers are unique"),
-                TreeItem::new_leaf( "Golf"),
+                TreeItem::new_leaf("Golf"),
             ],
         )
         .expect("all item identifiers are unique"),
-        TreeItem::new_leaf( "Hotel"),
+        TreeItem::new_leaf("Hotel"),
         TreeItem::new(
             "India",
             vec![
-                TreeItem::new_leaf( "Juliet"),
+                TreeItem::new_leaf("Juliet"),
                 TreeItem::new_leaf("Kilo"),
                 TreeItem::new_leaf("Lima"),
                 TreeItem::new_leaf("Mike"),
@@ -38,28 +35,28 @@ fn example_items() -> Vec<TreeItem<&'static str>> {
             ],
         )
         .expect("all item identifiers are unique"),
-        TreeItem::new_leaf( "Oscar"),
+        TreeItem::new_leaf("Oscar"),
         TreeItem::new(
             "Papa",
             vec![
-                TreeItem::new_leaf( "Quebec"),
-                TreeItem::new_leaf( "Romeo"),
-                TreeItem::new_leaf( "Sierra"),
-                TreeItem::new_leaf( "Tango"),
-                TreeItem::new_leaf( "Uniform"),
+                TreeItem::new_leaf("Quebec"),
+                TreeItem::new_leaf("Romeo"),
+                TreeItem::new_leaf("Sierra"),
+                TreeItem::new_leaf("Tango"),
+                TreeItem::new_leaf("Uniform"),
                 TreeItem::new(
                     "Victor",
                     vec![
                         TreeItem::new_leaf("Whiskey"),
-                        TreeItem::new_leaf ("Xray"),
-                        TreeItem::new_leaf( "Yankee"),
+                        TreeItem::new_leaf("Xray"),
+                        TreeItem::new_leaf("Yankee"),
                     ],
                 )
                 .expect("all item identifiers are unique"),
             ],
         )
         .expect("all item identifiers are unique"),
-        TreeItem::new_leaf( "Zulu"),
+        TreeItem::new_leaf("Zulu"),
     ]
 }
 

@@ -5,14 +5,14 @@ Tree widget [`Tree`] is generated with [`TreeItem`]s (which itself can contain [
 The user interaction state (like the current selection) is stored in the [`TreeState`].
 */
 
-use std::collections::HashSet;
-use std::fmt::Display;
-use std::hash::Hash;
 use ratatui::buffer::Buffer;
 use ratatui::layout::Rect;
 use ratatui::style::Style;
 use ratatui::text::ToText;
 use ratatui::widgets::{Block, Scrollbar, ScrollbarState, StatefulWidget, Widget};
+use std::collections::HashSet;
+use std::fmt::Display;
+use std::hash::Hash;
 use unicode_width::UnicodeWidthStr;
 
 pub use crate::flatten::Flattened;
@@ -346,8 +346,8 @@ where
 
 #[cfg(test)]
 mod render_tests {
-    use std::hash::{DefaultHasher, Hasher};
     use super::*;
+    use std::hash::{DefaultHasher, Hasher};
 
     #[must_use]
     #[track_caller]

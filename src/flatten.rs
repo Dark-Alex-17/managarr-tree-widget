@@ -1,8 +1,8 @@
+use crate::tree_item::TreeItem;
+use ratatui::text::ToText;
 use std::collections::HashSet;
 use std::fmt::Display;
 use std::hash::Hash;
-use crate::tree_item::TreeItem;
-use ratatui::text::ToText;
 
 /// A flattened item of all visible [`TreeItem`]s.
 ///
@@ -125,7 +125,17 @@ fn flatten_one_is_open() {
         hasher.finish()
     };
     open.insert(vec![hash("Bravo")]);
-    flatten_works(&open, &[hash("Alfa"), hash("Bravo"), hash("Charlie"), hash("Delta"), hash("Golf"), hash("Hotel")]);
+    flatten_works(
+        &open,
+        &[
+            hash("Alfa"),
+            hash("Bravo"),
+            hash("Charlie"),
+            hash("Delta"),
+            hash("Golf"),
+            hash("Hotel"),
+        ],
+    );
 }
 
 #[test]
@@ -139,5 +149,17 @@ fn flatten_all_open() {
     };
     open.insert(vec![hash("Bravo")]);
     open.insert(vec![hash("Bravo"), hash("Delta")]);
-    flatten_works(&open, &[hash("Alfa"), hash("Bravo"), hash("Charlie"), hash("Delta"), hash("Echo"), hash("Foxtrot"), hash("Golf"), hash("Hotel")]);
+    flatten_works(
+        &open,
+        &[
+            hash("Alfa"),
+            hash("Bravo"),
+            hash("Charlie"),
+            hash("Delta"),
+            hash("Echo"),
+            hash("Foxtrot"),
+            hash("Golf"),
+            hash("Hotel"),
+        ],
+    );
 }
