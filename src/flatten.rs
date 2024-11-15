@@ -10,7 +10,7 @@ use std::hash::Hash;
 #[must_use]
 pub struct Flattened<'a, T>
 where
-    T: ToText + Clone + Default + Display + Hash,
+    T: ToText + Clone + Default + Display + Hash + PartialEq + Eq,
 {
     pub identifier: Vec<u64>,
     pub item: &'a TreeItem<T>,
@@ -18,7 +18,7 @@ where
 
 impl<'a, T> Flattened<'a, T>
 where
-    T: ToText + Clone + Default + Display + Hash,
+    T: ToText + Clone + Default + Display + Hash + PartialEq + Eq,
 {
     /// Zero based depth. Depth 0 means top level with 0 indentation.
     #[must_use]
@@ -37,7 +37,7 @@ pub fn flatten<'a, T>(
     current: &[u64],
 ) -> Vec<Flattened<'a, T>>
 where
-    T: ToText + Clone + Default + Display + Hash,
+    T: ToText + Clone + Default + Display + Hash + PartialEq + Eq,
 {
     let mut result = Vec::new();
     for item in items {

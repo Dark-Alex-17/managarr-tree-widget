@@ -34,10 +34,10 @@ use std::hash::{DefaultHasher, Hash, Hasher};
 /// let b = TreeItem::new("Root", vec![a])?;
 /// # Ok::<(), std::io::Error>(())
 /// ```
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct TreeItem<T>
 where
-    T: ToText + Clone + Default + Display + Hash,
+    T: ToText + Clone + Default + Display + Hash + PartialEq + Eq,
 {
     pub(super) identifier: u64,
     pub(super) content: T,
@@ -46,7 +46,7 @@ where
 
 impl<T> TreeItem<T>
 where
-    T: ToText + Clone + Default + Display + Hash,
+    T: ToText + Clone + Default + Display + Hash + PartialEq + Eq,
 {
     /// Create a new `TreeItem` with children.
     ///

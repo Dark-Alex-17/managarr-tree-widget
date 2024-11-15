@@ -58,7 +58,7 @@ impl TreeState {
     #[must_use]
     pub fn flatten<'a, T>(&self, items: &'a [TreeItem<T>]) -> Vec<Flattened<'a, T>>
     where
-        T: ToText + Clone + Default + Display + Hash,
+        T: ToText + Clone + Default + Display + Hash + PartialEq + Eq,
     {
         flatten(&self.opened, items, &[])
     }

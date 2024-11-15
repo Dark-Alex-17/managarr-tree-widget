@@ -53,7 +53,7 @@ mod tree_state;
 #[derive(Debug, Clone)]
 pub struct Tree<'a, T>
 where
-    T: ToText + Clone + Default + Display + Hash,
+    T: ToText + Clone + Default + Display + Hash + PartialEq + Eq,
 {
     items: &'a [TreeItem<T>],
 
@@ -77,7 +77,7 @@ where
 
 impl<'a, T> Tree<'a, T>
 where
-    T: ToText + Clone + Default + Display + Hash,
+    T: ToText + Clone + Default + Display + Hash + PartialEq + Eq,
 {
     /// Create a new `Tree`.
     ///
@@ -167,7 +167,7 @@ fn tree_new_errors_with_duplicate_identifiers() {
 
 impl<'a, T> StatefulWidget for Tree<'a, T>
 where
-    T: ToText + Clone + Default + Display + Hash,
+    T: ToText + Clone + Default + Display + Hash + PartialEq + Eq,
 {
     type State = TreeState;
 
@@ -336,7 +336,7 @@ where
 
 impl<'a, T> Widget for Tree<'a, T>
 where
-    T: ToText + Clone + Default + Display + Hash,
+    T: ToText + Clone + Default + Display + Hash + PartialEq + Eq,
 {
     fn render(self, area: Rect, buf: &mut Buffer) {
         let mut state = TreeState::default();
