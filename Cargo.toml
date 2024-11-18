@@ -4,13 +4,15 @@ description = "Tree Widget for Managarr"
 version = "0.24.0"
 license = "MIT"
 repository = "https://github.com/Dark-Alex-17/managarr-tree-widget"
-authors = ["EdJoPaTo <tui-tree-widget-rust-crate@edjopato.de>", "Dark-Alex-17 <alex.j.tusa@gmail.com>"]
+authors = [
+  "EdJoPaTo <tui-tree-widget-rust-crate@edjopato.de>",
+  "Dark-Alex-17 <alex.j.tusa@gmail.com>",
+]
 edition = "2021"
 keywords = ["tui", "terminal", "tree", "widget", "managarr"]
 categories = ["command-line-interface"]
 rust-version = "1.82.0"
 include = ["src/**/*", "examples/**/*", "benches/**/*", "README.md"]
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [lints.rust]
 unsafe_code = "forbid"
